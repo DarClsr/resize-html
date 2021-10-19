@@ -20,7 +20,7 @@ export default {
     },
     minHeight: {
       type: Number,
-      default: 10,
+      default: 50,
     },
     maxHeight: {
       type: Number,
@@ -134,13 +134,16 @@ export default {
           break;
         case "left":
           resizeBorderLeft = mouseX - this.original_x;
-          this.currentResizer.style.left = (resizeBorderLeft > 0 ? resizeBorderLeft : 0) + "px";
+          this.currentResizer.style.left = resizeBorderLeft + "px";
           break;
         case "top":
           resizeBorderTop = mouseY - this.original_y;
-          this.currentResizer.style.top = (resizeBorderTop > 0 ? resizeBorderTop : 0) + "px";
+          this.currentResizer.style.top = resizeBorderTop + "px";
           break;
-
+        case "bottom":
+          resizeBorderTop = mouseY - this.original_y;
+          this.currentResizer.style.top = resizeBorderTop + "px";
+          break;
       }
     },
     initBorderPlace () {
@@ -170,6 +173,9 @@ export default {
         case "top":
           parentHeight = (parentTiop + parentHeight) - e.clientY;
           parentTiop = e.clientY > 0 ? e.clientY : 0
+          break;
+        case "bottom":
+          parentHeight = e.clientY - parentTiop;
           break;
       }
 
