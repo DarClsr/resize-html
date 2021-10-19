@@ -134,11 +134,11 @@ export default {
           break;
         case "left":
           resizeBorderLeft = mouseX - this.original_x;
-          this.currentResizer.style.left = resizeBorderLeft > 0 ? resizeBorderLeft : 0 + "px";
+          this.currentResizer.style.left = (resizeBorderLeft > 0 ? resizeBorderLeft : 0) + "px";
           break;
         case "top":
           resizeBorderTop = mouseY - this.original_y;
-          this.currentResizer.style.top = resizeBorderTop > 0 ? resizeBorderTop : 0 + "px";
+          this.currentResizer.style.top = (resizeBorderTop > 0 ? resizeBorderTop : 0) + "px";
           break;
 
       }
