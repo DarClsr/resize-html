@@ -2,14 +2,7 @@
   <div class="resizable-box">
 
     <div class="resizers">
-      <div
-        class="resizer-border"
-        @mousedown="(e) => resizerDown(e, i)"
-        @mouseup="(e) => resizerUp(e, i)"
-        :class="`${border.key}`"
-        v-for="(border, i) in borders"
-        :key="border.key"
-      ></div>
+      <div class="resizer-border" @mousedown="(e) => resizerDown(e, i)" @mouseup="(e) => resizerUp(e, i)" :class="`${border.key}`" v-for="(border, i) in borders" :key="border.key"></div>
     </div>
   </div>
 </template>
@@ -34,7 +27,7 @@ export default {
       default: 500,
     },
   },
-  data() {
+  data () {
     return {
       minimum_size: 100,
       original_width: 0, //拖动div的宽度
@@ -66,26 +59,26 @@ export default {
       ],
     };
   },
-  mounted() {
+  mounted () {
     this.initdivs();
   },
   computed: {
-    direction() {
+    direction () {
       return this.borders[this.currentResieIndex].key;
     },
-    currentResizer() {
+    currentResizer () {
       return this.currentResizers[this.currentResieIndex];
     },
   },
   methods: {
-    initdivs() {
+    initdivs () {
       this.reszieParentElement = document.querySelector(".resizable-box");
       const resizers = document.querySelectorAll(".resizer-border");
       for (let i = 0; i < resizers.length; i++) {
         this.$set(this.currentResizers, i, resizers[i]);
       }
     },
-    initParentDiv(e) {
+    initParentDiv (e) {
       this.original_width = parseFloat(
         getComputedStyle(this.reszieParentElement, null)
           .getPropertyValue("width")
@@ -101,7 +94,7 @@ export default {
       this.original_mouse_x = e.pageX;
       this.original_mouse_y = e.pageY;
     },
-    resizerDown(e, i) {
+    resizerDown (e, i) {
       this.currentResieIndex = i;
       e.preventDefault();
       // 改变拖动div的class
@@ -111,7 +104,7 @@ export default {
       window.addEventListener("mousemove", this.resize);
       window.addEventListener("mouseup", this.stopResize);
     },
-    getResizeInfo(e) {
+    getResizeInfo (e) {
       let width = this.original_width + (e.pageX - this.original_mouse_x),
         height = this.original_height + (e.pageY - this.original_mouse_y);
       switch (this.direction) {
@@ -122,19 +115,18 @@ export default {
       return { width, height };
     },
 
-    resize(e) {
+    resize (e) {
       this.resizerMove(e);
     },
-    stopResize() {
+    stopResize () {
       window.removeEventListener("mousemove", this.resize);
       this.currentResizer.classList.remove("actived");
     },
-    resizerMove(e) {
+    resizerMove (e) {
       const mouseX = e.pageX;
       const mouseY = e.pageY;
       let resizeBorderLeft = 0,
-      resizeBorderTop =0;
-      console.log(this.direction)
+        resizeBorderTop = 0;
       switch (this.direction) {
         case "right":
           resizeBorderLeft = mouseX - this.original_x;
@@ -142,50 +134,42 @@ export default {
           break;
         case "left":
           resizeBorderLeft = mouseX - this.original_x;
-          this.currentResizer.style.left = resizeBorderLeft + "px";
+          this.currentResizer.style.left = resizeBorderLeft > 0 ? resizeBorderLeft : 0 + "px";
           break;
-         case "top":
-          resizeBorderTop =  mouseY - this.original_y;
-          this.currentResizer.style.top = resizeBorderTop + "px";
+        case "top":
+          resizeBorderTop = mouseY - this.original_y;
+          this.currentResizer.style.top = resizeBorderTop > 0 ? resizeBorderTop : 0 + "px";
           break;
 
       }
     },
-    initBorderPlace() {
+    initBorderPlace () {
       for (let i in this.borders) {
         const border = this.borders[i];
         this.currentResizers[i].style = border.style;
       }
     },
-    resizerUp(e, i) {
+    resizerUp (e, i) {
       this.currentResieIndex = i;
       e.preventDefault();
       const currentBorderLeft = this.currentResizer.offsetLeft;
-      const currentBorderTop = this.currentResizer.offsetTop;
-
-      console.log(currentBorderTop,"top");
-
-     
       let parentWidth = this.reszieParentElement.offsetWidth;
       let parentHeight = this.reszieParentElement.offsetHeight;
       let parentLeft = this.reszieParentElement.offsetLeft;
       let parentTiop = this.reszieParentElement.offsetTop;
-      let spaceNum=0;
-      let cloumnNum=0;
+      let spaceNum = 0;
       switch (this.direction) {
         case "right":
-          spaceNum=currentBorderLeft + this.currentResizer.offsetWidth;
-          parentWidth=spaceNum;
+          spaceNum = currentBorderLeft + this.currentResizer.offsetWidth;
+          parentWidth = spaceNum;
           break;
         case "left":
-           spaceNum=currentBorderLeft>0?currentBorderLeft:0;
-           parentWidth=spaceNum>0?parentWidth-spaceNum:(parentLeft+parentWidth)-spaceNum;
-           parentLeft=spaceNum
+          parentWidth = (parentLeft + parentWidth) - e.clientX
+          parentLeft = e.clientX > 0 ? e.clientX : 0
           break;
-         case "top":
-           cloumnNum=currentBorderTop>0?currentBorderTop:0;
-           parentHeight=cloumnNum>0?parentHeight-cloumnNum:(parentTiop+parentHeight)-cloumnNum;
-           parentTiop=cloumnNum>0?cloumnNum+parentTiop:parentTiop-(-currentBorderTop)
+        case "top":
+          parentHeight = (parentTiop + parentHeight) - e.clientY;
+          parentTiop = e.clientY > 0 ? e.clientY : 0
           break;
       }
 
@@ -245,6 +229,7 @@ export default {
 
 .resizable-box .resizers .resizer-border {
   position: absolute;
+  background: red;
 }
 
 .resizer-border.top,
