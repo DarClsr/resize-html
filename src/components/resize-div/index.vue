@@ -221,9 +221,7 @@ export default {
   background: white;
   width: 300px;
   height: 300px;
-  position: absolute;
-  top: 300px;
-  left: 0;
+  position: relative;
 }
 
 .resizable-box .resizers {
