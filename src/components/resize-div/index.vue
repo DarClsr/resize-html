@@ -1,10 +1,12 @@
 <template>
-  <div class="resizable-box">
-
-    <div class="resizers">
-      <div class="resizer-border" @mousedown="(e) => resizerDown(e, i)" @mouseup="(e) => resizerUp(e, i)" :class="`${border.key}`" v-for="(border, i) in borders" :key="border.key"></div>
+  <div class="grid-item" :style="{left:leftNum+'px',top:topNum+'px'}">
+    <div class="resizable-box" :class="`resize-box-${classId}`" :style="{width:width+'px',height:height+'px'}">
+      <div class="resizers">
+        <div class="resizer-border" @mousedown="(e) => resizerDown(e, i)" @mouseup="(e) => resizerUp(e, i)" :class="`${border.key}`" v-for="(border, i) in borders" :key="border.key"></div>
+      </div>
     </div>
   </div>
+
 </template>
 
 <script>
@@ -20,11 +22,36 @@ export default {
     },
     minHeight: {
       type: Number,
-      default: 50,
+      default: 10,
+    },
+    width: {
+      type: Number,
+      default: 300,
+    },
+    height: {
+      type: Number,
+      default: 300,
     },
     maxHeight: {
       type: Number,
       default: 500,
+    },
+    leftNum: {
+      type: Number,
+      default: 0,
+    },
+    topNum: {
+      type: Number,
+      default: 0,
+    },
+
+    gutters: {
+      type: Number,
+      default: 10,
+    },
+    classId: {
+      type: Number || String,
+      default: "",
     },
   },
   data () {
@@ -72,8 +99,8 @@ export default {
   },
   methods: {
     initdivs () {
-      this.reszieParentElement = document.querySelector(".resizable-box");
-      const resizers = document.querySelectorAll(".resizer-border");
+      this.reszieParentElement = document.querySelector(`.resize-box-${this.classId}`);
+      const resizers = this.reszieParentElement.querySelectorAll(".resizer-border");
       for (let i = 0; i < resizers.length; i++) {
         this.$set(this.currentResizers, i, resizers[i]);
       }
@@ -127,6 +154,7 @@ export default {
       const mouseY = e.pageY;
       let resizeBorderLeft = 0,
         resizeBorderTop = 0;
+      console.log(this.direction);
       switch (this.direction) {
         case "right":
           resizeBorderLeft = mouseX - this.original_x;
@@ -141,8 +169,8 @@ export default {
           this.currentResizer.style.top = resizeBorderTop + "px";
           break;
         case "bottom":
-          resizeBorderTop = mouseY - this.original_y;
-          this.currentResizer.style.top = resizeBorderTop + "px";
+          resizeBorderTop = this.original_mouse_y - mouseY;
+          this.currentResizer.style.bottom = resizeBorderTop + "px";
           break;
       }
     },
@@ -152,57 +180,97 @@ export default {
         this.currentResizers[i].style = border.style;
       }
     },
-    resizerUp (e, i) {
-      this.currentResieIndex = i;
-      e.preventDefault();
-      const currentBorderLeft = this.currentResizer.offsetLeft;
+    isAllow () {
       let parentWidth = this.reszieParentElement.offsetWidth;
       let parentHeight = this.reszieParentElement.offsetHeight;
       let parentLeft = this.reszieParentElement.offsetLeft;
       let parentTiop = this.reszieParentElement.offsetTop;
+      const currentBorderLeft = this.currentResizer.offsetLeft;
+      const currentBorderTop = this.currentResizer.offsetTop;
+      let allow = true;
+      switch (this.direction) {
+        case "left":
+          allow = currentBorderLeft > parentLeft + parentWidth ? false : true;
+          break;
+        case "top":
+          allow = currentBorderTop > parentTiop + parentHeight ? false : true;
+          break;
+        case "right":
+          allow = currentBorderLeft < 0 ? false : true;
+          break;
+        case "bottom":
+          allow = currentBorderTop < 0 ? false : true;
+          break;
+      }
+      return allow;
+    },
+    resizerUp (e, i) {
+      this.currentResieIndex = i;
+      e.preventDefault();
+      const currentBorderLeft = this.currentResizer.offsetLeft;
+      const currentBorderTop = this.currentResizer.offsetTop;
+
+      let parentWidth = this.reszieParentElement.offsetWidth;
+      let parentHeight = this.reszieParentElement.offsetHeight;
+      let parentLeft = this.reszieParentElement.offsetLeft;
+      let parentTiop = this.reszieParentElement.offsetTop;
+      console.log(this.reszieParentElement)
       let spaceNum = 0;
+      let cloumnNum = 0;
+      let leftNumber = 0;
+
       switch (this.direction) {
         case "right":
           spaceNum = currentBorderLeft + this.currentResizer.offsetWidth;
           parentWidth = spaceNum;
           break;
         case "left":
-          parentWidth = (parentLeft + parentWidth) - e.clientX
-          parentLeft = e.clientX > 0 ? e.clientX : 0
+          spaceNum = currentBorderLeft;
+          leftNumber = parentLeft + currentBorderLeft;
+          parentWidth =
+            spaceNum > 0 ? parentWidth - spaceNum : parentWidth - spaceNum;
+          parentLeft = leftNumber > 0 ? leftNumber : 0;
+
           break;
         case "top":
-          parentHeight = (parentTiop + parentHeight) - e.clientY;
-          parentTiop = e.clientY > 0 ? e.clientY : 0
+          cloumnNum = currentBorderTop;
+          parentHeight =
+            cloumnNum > 0 ? parentHeight - cloumnNum : parentHeight - cloumnNum;
+          parentTiop = cloumnNum + parentTiop;
+
           break;
         case "bottom":
-          parentHeight = e.clientY - parentTiop;
+          cloumnNum = currentBorderTop > 0 ? currentBorderTop : 0;
+          parentHeight = cloumnNum;
+
           break;
       }
 
-
-
       // 限制宽
       if (parentWidth < this.minWidth) {
-        console.log(`min width is ${this.minWidth}px`)
+        console.log(`min width is ${this.minWidth}px`);
         parentWidth = this.minWidth;
       } else if (parentWidth > this.maxWidth) {
-        console.log(`max width is ${this.maxWidth}px`)
+        console.log(`max width is ${this.maxWidth}px`);
         parentWidth = this.maxWidth;
       }
 
       // 限制宽
       if (parentHeight < this.minHeight) {
-        console.log(`min width is ${this.minWidth}px`)
+        console.log(`min width is ${this.minWidth}px`);
         parentHeight = this.minHeight;
       } else if (parentHeight > this.maxHeight) {
-        console.log("max width is 500px")
+        console.log("max width is 500px");
         parentHeight = this.maxHeight;
       }
 
-      this.reszieParentElement.style.width = parentWidth + "px";
-      this.reszieParentElement.style.height = parentHeight + "px";
-      this.reszieParentElement.style.left = parentLeft + "px";
-      this.reszieParentElement.style.top = parentTiop + "px";
+      const isAllow = this.isAllow();
+      if (isAllow) {
+        this.reszieParentElement.style.width = parentWidth + "px";
+        this.reszieParentElement.style.height = parentHeight + "px";
+        this.reszieParentElement.style.left = parentLeft + "px";
+        this.reszieParentElement.style.top = parentTiop + "px";
+      }
 
       // console.log(width)
       this.currentResizer.classList.remove("actived");
@@ -214,8 +282,10 @@ export default {
 </script>
 
 <style lang="css" scoped>
-* {
-  box-sizing: border-box;
+.grid-item {
+  width: auto;
+  height: auto;
+  position: absolute;
 }
 .resizable-box {
   background: white;
@@ -227,13 +297,12 @@ export default {
 .resizable-box .resizers {
   width: 100%;
   height: 100%;
-  border: 20px solid #4286f4;
   box-sizing: border-box;
+  border: 20px solid #4286f4;
 }
 
 .resizable-box .resizers .resizer-border {
   position: absolute;
-  background: red;
 }
 
 .resizer-border.top,

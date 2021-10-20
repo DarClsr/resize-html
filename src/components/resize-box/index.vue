@@ -1,7 +1,6 @@
 <template>
   <div class="sizeBox" :style="defaultStyle">
-
-    <resize-div :maxWidth="currentMax" />
+    <resize-div :gutters="gutters" :width="item.width" :height="item.height" :maxWidth="currentMaxWidth(item)" :classId="randomId(index)" v-for="(item,index) in grids" :key="index" :leftNum="item.left" :topNum="item.top" />
   </div>
 </template>
 
@@ -12,11 +11,51 @@ export default {
     return {
       boxWidth: 800,
       boxHeight: 800,
+      gutters: 10,
+
+      grids: [
+        {
+          id: Math.random() * 10000,
+          left: 0,
+          width: 300,
+          height: 590,
+          top: 0,
+        },
+
+        {
+          id: Math.random() * 10000,
+
+          left: 500,
+          width: 300,
+          height: 590,
+          top: 0,
+        },
+        {
+          left: 0,
+          id: Math.random() * 10000,
+          top: 600,
+          width: 800,
+          height: 200,
+        }
+      ]
     }
   },
   computed: {
-    currentMax () {
-      return this.boxWidth
+    currentMaxWidth () {
+      return (item) => {
+        const blocks = this.grids.filter(v => v.top == item.top && v.id != item.id);
+        const width = blocks.reduce((total, cur) => {
+          return total += cur.width;
+        }, 0)
+        console.log(this.boxWidth - width, "lllll");
+        console.log(item)
+        return this.boxWidth - width;
+      }
+    },
+    randomId () {
+      return (i) => {
+        return Math.floor(Math.random() * 10000000 * (i + 1));
+      }
     },
     defaultStyle () {
       return `width:${this.boxWidth};height:${this.boxHeight}`;
@@ -31,10 +70,7 @@ export default {
 .sizeBox {
   width: 800px;
   height: 800px;
-  display: grid;
   background-color: #f5f5f5;
-  grid-template-columns: 100%;
-  grid-template-rows: 100%;
   margin: 0 auto;
   position: relative;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
