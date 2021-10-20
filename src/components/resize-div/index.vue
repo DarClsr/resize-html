@@ -14,7 +14,7 @@ export default {
   props: {
     minWidth: {
       type: Number,
-      default: 50,
+      default: 100,
     },
     maxWidth: {
       type: Number,
@@ -22,7 +22,7 @@ export default {
     },
     minHeight: {
       type: Number,
-      default: 10,
+      default: 100,
     },
     width: {
       type: Number,
@@ -188,12 +188,13 @@ export default {
       const currentBorderLeft = this.currentResizer.offsetLeft;
       const currentBorderTop = this.currentResizer.offsetTop;
       let allow = true;
+      console.log(parentLeft + parentWidth, currentBorderLeft)
       switch (this.direction) {
         case "left":
-          allow = currentBorderLeft > parentLeft + parentWidth ? false : true;
+          allow = currentBorderLeft + parentLeft > parentLeft + parentWidth ? false : true;
           break;
         case "top":
-          allow = currentBorderTop > parentTiop + parentHeight ? false : true;
+          allow = currentBorderTop + parentTiop > parentTiop + parentHeight ? false : true;
           break;
         case "right":
           allow = currentBorderLeft < 0 ? false : true;
@@ -227,9 +228,16 @@ export default {
         case "left":
           spaceNum = currentBorderLeft;
           leftNumber = parentLeft + currentBorderLeft;
+          console.log(currentBorderLeft, parentLeft, parentWidth)
           parentWidth =
             spaceNum > 0 ? parentWidth - spaceNum : parentWidth - spaceNum;
-          parentLeft = leftNumber > 0 ? leftNumber : 0;
+          if (parentWidth <= this.minWidth) {
+            parentLeft = leftNumber > 0 ? leftNumber : 0;
+
+          } else {
+            parentLeft = leftNumber > 0 ? leftNumber : 0;
+
+          }
 
           break;
         case "top":

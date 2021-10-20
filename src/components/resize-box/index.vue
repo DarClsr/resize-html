@@ -1,6 +1,6 @@
 <template>
   <div class="sizeBox" :style="defaultStyle">
-    <resize-div :maxHeight="currentMaxHeight" :gutters="gutters" :width="item.width" :height="item.height" :maxWidth="currentMaxWidth(item)" :classId="randomId(index)" v-for="(item,index) in grids" :key="index" :leftNum="item.left" :topNum="item.top" />
+    <resize-div :maxHeight="currentMaxHeight(item)" :gutters="gutters" :width="item.width" :height="item.height" :maxWidth="currentMaxWidth(item)" :classId="randomId(index)" v-for="(item,index) in grids" :key="index" :leftNum="item.left" :topNum="item.top" />
   </div>
 </template>
 
@@ -22,20 +22,20 @@ export default {
           top: 0,
         },
 
-        {
-          id: Math.random() * 10000,
-          left: 500,
-          width: 300,
-          height: 590,
-          top: 0,
-        },
-        {
-          left: 0,
-          id: Math.random() * 10000,
-          top: 600,
-          width: 800,
-          height: 200,
-        }
+        // {
+        //   id: Math.random() * 10000,
+        //   left: 500,
+        //   width: 300,
+        //   height: 590,
+        //   top: 0,
+        // },
+        // {
+        //   left: 0,
+        //   id: Math.random() * 10000,
+        //   top: 600,
+        //   width: 800,
+        //   height: 200,
+        // }
       ]
     }
   },
