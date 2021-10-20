@@ -208,8 +208,8 @@ export default {
     resizerUp (e, i) {
       this.currentResieIndex = i;
       e.preventDefault();
-      const currentBorderLeft = this.currentResizer.offsetLeft;
-      const currentBorderTop = this.currentResizer.offsetTop;
+      let currentBorderLeft = this.currentResizer.offsetLeft;
+      let currentBorderTop = this.currentResizer.offsetTop;
 
       let parentWidth = this.reszieParentElement.offsetWidth;
       let parentHeight = this.reszieParentElement.offsetHeight;
@@ -227,17 +227,14 @@ export default {
           break;
         case "left":
           spaceNum = currentBorderLeft;
+          if (parentWidth <= this.minWidth) {
+            currentBorderLeft = 0
+          }
           leftNumber = parentLeft + currentBorderLeft;
           console.log(currentBorderLeft, parentLeft, parentWidth)
           parentWidth =
             spaceNum > 0 ? parentWidth - spaceNum : parentWidth - spaceNum;
-          if (parentWidth <= this.minWidth) {
-            parentLeft = leftNumber > 0 ? leftNumber : 0;
-
-          } else {
-            parentLeft = leftNumber > 0 ? leftNumber : 0;
-
-          }
+          parentLeft = leftNumber > 0 ? leftNumber : 0;
 
           break;
         case "top":
