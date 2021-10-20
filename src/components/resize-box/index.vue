@@ -1,6 +1,6 @@
 <template>
   <div class="sizeBox" :style="defaultStyle">
-    <resize-div :gutters="gutters" :width="item.width" :height="item.height" :maxWidth="currentMaxWidth(item)" :classId="randomId(index)" v-for="(item,index) in grids" :key="index" :leftNum="item.left" :topNum="item.top" />
+    <resize-div :maxHeight="currentMaxHeight" :gutters="gutters" :width="item.width" :height="item.height" :maxWidth="currentMaxWidth(item)" :classId="randomId(index)" v-for="(item,index) in grids" :key="index" :leftNum="item.left" :topNum="item.top" />
   </div>
 </template>
 
@@ -24,7 +24,6 @@ export default {
 
         {
           id: Math.random() * 10000,
-
           left: 500,
           width: 300,
           height: 590,
@@ -50,6 +49,15 @@ export default {
         console.log(this.boxWidth - width, "lllll");
         console.log(item)
         return this.boxWidth - width;
+      }
+    },
+    currentMaxHeight () {
+      return (item) => {
+        const blocks = this.grids.filter(v => v.left == item.left && v.id != item.id);
+        const width = blocks.reduce((total, cur) => {
+          return total += cur.height;
+        }, 0)
+        return this.boxHeight - width;
       }
     },
     randomId () {
