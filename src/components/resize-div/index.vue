@@ -57,6 +57,7 @@ export default {
   data () {
     return {
       minimum_size: 100,
+      isChange:false,
       original_width: 0, //拖动div的宽度
       original_height: 0, //拖动div的高度
       original_x: 0, //拖动div的left值
@@ -122,7 +123,9 @@ export default {
       this.original_mouse_y = e.pageY;
     },
     resizerDown (e, i) {
+      console.log(this.reszieParentElement,this.classId)
       this.currentResieIndex = i;
+      this.isChange=false;
       e.preventDefault();
       // 改变拖动div的class
       this.currentResizer.classList.add("actived");
@@ -217,6 +220,7 @@ export default {
       let spaceNum = 0;
       let cloumnNum = 0;
       let leftNumber = 0;
+      this.isChange=true;
 
       switch (this.direction) {
         case "right":
@@ -230,8 +234,8 @@ export default {
           }
           leftNumber = parentLeft + currentBorderLeft;
           parentWidth =
-            spaceNum > parentWidth ? parentWidth : parentWidth - spaceNum;
-          parentLeft = leftNumber > 0 ? leftNumber : 0;
+            spaceNum > 0 ? parentWidth-spaceNum : parentWidth+(-spaceNum);
+          parentLeft = leftNumber;
 
           break;
         case "top":
@@ -267,8 +271,7 @@ export default {
       }
 
       const isAllow = this.isAllow();
-      console.log(isAllow)
-      if (isAllow) {
+      if (isAllow&&this.isChange) {
         this.reszieParentElement.style.width = parentWidth + "px";
         this.reszieParentElement.style.height = parentHeight + "px";
         // this.reszieParentElement.style.left = parentLeft + "px";
@@ -278,8 +281,11 @@ export default {
           left: parentLeft,
           top: parentTiop,
           width: parentWidth,
-          height: parentHeight
+          height: parentHeight,
+          direction:this.direction,
         })
+
+        this.isChange=false;
 
       }
 
