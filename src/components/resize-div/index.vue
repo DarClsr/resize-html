@@ -210,12 +210,10 @@ export default {
       e.preventDefault();
       let currentBorderLeft = this.currentResizer.offsetLeft;
       let currentBorderTop = this.currentResizer.offsetTop;
-
       let parentWidth = this.reszieParentElement.offsetWidth;
       let parentHeight = this.reszieParentElement.offsetHeight;
       let parentLeft = this.reszieParentElement.offsetLeft;
       let parentTiop = this.reszieParentElement.offsetTop;
-      console.log(this.reszieParentElement)
       let spaceNum = 0;
       let cloumnNum = 0;
       let leftNumber = 0;
@@ -230,10 +228,12 @@ export default {
           if (parentWidth <= this.minWidth) {
             currentBorderLeft = 0
           }
+          if (spaceNum > parentWidth) {
+            currentBorderLeft = 0;
+          }
           leftNumber = parentLeft + currentBorderLeft;
-          console.log(currentBorderLeft, parentLeft, parentWidth)
           parentWidth =
-            spaceNum > 0 ? parentWidth - spaceNum : parentWidth - spaceNum;
+            spaceNum > parentWidth ? parentWidth : parentWidth - spaceNum;
           parentLeft = leftNumber > 0 ? leftNumber : 0;
 
           break;
@@ -273,12 +273,21 @@ export default {
       if (isAllow) {
         this.reszieParentElement.style.width = parentWidth + "px";
         this.reszieParentElement.style.height = parentHeight + "px";
-        this.reszieParentElement.style.left = parentLeft + "px";
-        this.reszieParentElement.style.top = parentTiop + "px";
+        // this.reszieParentElement.style.left = parentLeft + "px";
+        // this.reszieParentElement.style.top = parentTiop + "px";
+
       }
 
       // console.log(width)
       this.currentResizer.classList.remove("actived");
+      this.$emit("change", {
+        id: this.classId,
+        left: parentLeft,
+        top: parentTiop,
+        width: parentWidth,
+        height: parentHeight
+      })
+
 
       this.initBorderPlace();
     },
@@ -339,5 +348,6 @@ export default {
 
 .resizer-border.actived {
   background: red;
+  z-index: 99999;
 }
 </style>

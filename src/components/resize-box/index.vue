@@ -1,6 +1,6 @@
 <template>
   <div class="sizeBox" :style="defaultStyle">
-    <resize-div :maxHeight="currentMaxHeight(item)" :gutters="gutters" :width="item.width" :height="item.height" :maxWidth="currentMaxWidth(item)" :classId="randomId(index)" v-for="(item,index) in grids" :key="index" :leftNum="item.left" :topNum="item.top" />
+    <resize-div :maxHeight="currentMaxHeight(item)" :gutters="gutters" :width="item.width" :height="item.height" :maxWidth="currentMaxWidth(item)" :classId="item.id" v-for="(item,index) in grids" :key="index" :leftNum="item.left" :topNum="item.top" @change="setResize" />
   </div>
 </template>
 
@@ -15,27 +15,24 @@ export default {
 
       grids: [
         {
-          id: Math.random() * 10000,
           left: 0,
           width: 300,
           height: 590,
           top: 0,
         },
 
-        // {
-        //   id: Math.random() * 10000,
-        //   left: 500,
-        //   width: 300,
-        //   height: 590,
-        //   top: 0,
-        // },
-        // {
-        //   left: 0,
-        //   id: Math.random() * 10000,
-        //   top: 600,
-        //   width: 800,
-        //   height: 200,
-        // }
+        {
+          left: 500,
+          width: 300,
+          height: 590,
+          top: 0,
+        },
+        {
+          left: 0,
+          top: 600,
+          width: 800,
+          height: 200,
+        }
       ]
     }
   },
@@ -46,8 +43,6 @@ export default {
         const width = blocks.reduce((total, cur) => {
           return total += cur.width;
         }, 0)
-        console.log(this.boxWidth - width, "lllll");
-        console.log(item)
         return this.boxWidth - width;
       }
     },
@@ -71,6 +66,35 @@ export default {
   },
   components: {
     ResizeDiv
+  },
+  created () {
+    this.initGrids();
+  },
+  methods: {
+    initGrids () {
+      this.grids = this.grids.map((v, index) => {
+        return {
+          ...v,
+          id: this.randomId(index)
+        }
+      })
+    },
+    setResize ({ id, width, height, left, top }) {
+      const index = this.grids.findIndex(v => v.id == id);
+      const currentGrid = this.grids[index];
+      const currentLeft = left + currentGrid.left;
+      const currentTop = top + currentGrid.top;
+
+
+      this.$set(this.grids, index, {
+        ...currentGrid,
+        width,
+        height,
+        left: currentLeft,
+        top: currentTop,
+
+      })
+    }
   }
 }
 </script>
