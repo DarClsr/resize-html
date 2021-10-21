@@ -228,9 +228,6 @@ export default {
           if (parentWidth <= this.minWidth) {
             currentBorderLeft = 0
           }
-          if (spaceNum > parentWidth) {
-            currentBorderLeft = 0;
-          }
           leftNumber = parentLeft + currentBorderLeft;
           parentWidth =
             spaceNum > parentWidth ? parentWidth : parentWidth - spaceNum;
@@ -270,23 +267,25 @@ export default {
       }
 
       const isAllow = this.isAllow();
+      console.log(isAllow)
       if (isAllow) {
         this.reszieParentElement.style.width = parentWidth + "px";
         this.reszieParentElement.style.height = parentHeight + "px";
         // this.reszieParentElement.style.left = parentLeft + "px";
         // this.reszieParentElement.style.top = parentTiop + "px";
+        this.$emit("change", {
+          id: this.classId,
+          left: parentLeft,
+          top: parentTiop,
+          width: parentWidth,
+          height: parentHeight
+        })
 
       }
 
       // console.log(width)
       this.currentResizer.classList.remove("actived");
-      this.$emit("change", {
-        id: this.classId,
-        left: parentLeft,
-        top: parentTiop,
-        width: parentWidth,
-        height: parentHeight
-      })
+
 
 
       this.initBorderPlace();
