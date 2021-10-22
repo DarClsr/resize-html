@@ -2,6 +2,8 @@
   <div class="grid-item" :style="{left:leftNum+'px',top:topNum+'px'}">
     <div class="resizable-box" :class="`resize-box-${classId}`" :style="{width:width+'px',height:height+'px'}">
       <div class="resizers">
+        {{classId}}
+        {{'width--'+ width}}
         <div class="resizer-border" @mousedown="(e) => resizerDown(e, i)" @mouseup="(e) => resizerUp(e, i)" :class="`${border.key}`" v-for="(border, i) in borders" :key="border.key"></div>
       </div>
     </div>
@@ -221,6 +223,7 @@ export default {
       let cloumnNum = 0;
       let leftNumber = 0;
       this.isChange=true;
+      console.log(currentBorderLeft,"border left")
 
       switch (this.direction) {
         case "right":
@@ -233,9 +236,13 @@ export default {
             currentBorderLeft = 0
           }
           leftNumber = parentLeft + currentBorderLeft;
+          console.log(spaceNum>0,'space')
+          console.log(parentWidth,'parent width')
           parentWidth =
             spaceNum > 0 ? parentWidth-spaceNum : parentWidth+(-spaceNum);
           parentLeft = leftNumber;
+          console.log(parentWidth,'parent width222')
+
 
           break;
         case "top":
@@ -251,6 +258,8 @@ export default {
 
           break;
       }
+      console.log(parentWidth,"2.52.5")
+
 
       // 限制宽
       if (parentWidth < this.minWidth) {
@@ -269,11 +278,14 @@ export default {
         console.log("max width is 500px");
         parentHeight = this.maxHeight;
       }
+      console.log(parentWidth,"33333")
 
       const isAllow = this.isAllow();
       if (isAllow&&this.isChange) {
         this.reszieParentElement.style.width = parentWidth + "px";
         this.reszieParentElement.style.height = parentHeight + "px";
+      console.log(parentWidth,"4444")
+
         // this.reszieParentElement.style.left = parentLeft + "px";
         // this.reszieParentElement.style.top = parentTiop + "px";
         this.$emit("change", {

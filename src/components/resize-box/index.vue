@@ -5,7 +5,7 @@
       :gutters="gutters"
       :width="item.width"
       :height="item.height"
-      :maxWidth="currentMaxWidth(item)"
+      :maxWidth="boxWidth"
       :classId="item.id"
       v-for="(item, index) in grids"
       :key="index"
@@ -59,6 +59,7 @@ export default {
         const width = blocks.reduce((total, cur) => {
           return (total += cur.width);
         }, 0);
+        console.log(width,"max",item.id)
         return this.boxWidth - width;
       };
     },
@@ -114,13 +115,39 @@ export default {
           break;
       }
 
-      console.log(blanaceWidth, "is add");
-
       if (blanaceWidth <= 0) {
         is = false;
       }
 
       return is;
+    },
+    isReduce(left, direction, top, prev) {
+      const prevleft = prev.left;
+      let is = left < this.limit;
+
+      console.log(direction,top,"reduce",prevleft)
+
+      return is;
+    },
+    reduceGrid(direction,id){
+      console.log("删除 不改变");
+      const currentIndex = this.grids.findIndex((v) => v.id == id);
+      const { top,left } = this.grids[currentIndex];
+
+      let removeIndex=0;
+
+      switch(direction){
+        case "left":
+          removeIndex=this.grids.findIndex(v=>{
+            return v.top==top&&v.left<left;
+          })
+          break;
+      }
+
+      if(removeIndex>-1){
+        this.grids.splice(removeIndex,1)
+      }
+
     },
     addGrid(direction, id) {
       console.log("添加 不改变");
@@ -176,6 +203,7 @@ export default {
       const currentGrid = this.grids[index];
       let currentLeft = left + currentGrid.left;
       let currentTop = top + currentGrid.top;
+      // let currentWidth=left>0?width:currentLeft+width;
       if (currentLeft <= 0) {
         currentLeft = 0;
       }
@@ -184,7 +212,6 @@ export default {
       }
 
       const prev = this.grids[index];
-
       this.$nextTick(() => {
         this.$set(this.grids, index, {
           ...currentGrid,
@@ -194,10 +221,12 @@ export default {
           top: currentTop,
         });
         const isAdd = this.isAdd(currentLeft, direction, currentTop, prev);
-
+        const isReduce=this.isReduce(currentLeft, direction, currentTop, prev)
         if (isAdd) {
           this.addGrid(direction, id);
-        } else {
+        } else if(isReduce) {
+          this.reduceGrid(direction,id)
+        }else{
           this.initRowGrid(direction, id);
         }
       });
