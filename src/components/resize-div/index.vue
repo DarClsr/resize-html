@@ -59,7 +59,7 @@ export default {
   data () {
     return {
       minimum_size: 100,
-      isChange:false,
+      isChange: false,
       original_width: 0, //拖动div的宽度
       original_height: 0, //拖动div的高度
       original_x: 0, //拖动div的left值
@@ -125,9 +125,9 @@ export default {
       this.original_mouse_y = e.pageY;
     },
     resizerDown (e, i) {
-      console.log(this.reszieParentElement,this.classId)
+      console.log(this.reszieParentElement, this.classId)
       this.currentResieIndex = i;
-      this.isChange=false;
+      this.isChange = false;
       e.preventDefault();
       // 改变拖动div的class
       this.currentResizer.classList.add("actived");
@@ -222,8 +222,7 @@ export default {
       let spaceNum = 0;
       let cloumnNum = 0;
       let leftNumber = 0;
-      this.isChange=true;
-      console.log(currentBorderLeft,"border left")
+      this.isChange = true;
 
       switch (this.direction) {
         case "right":
@@ -236,14 +235,9 @@ export default {
             currentBorderLeft = 0
           }
           leftNumber = parentLeft + currentBorderLeft;
-          console.log(spaceNum>0,'space')
-          console.log(parentWidth,'parent width')
           parentWidth =
-            spaceNum > 0 ? parentWidth-spaceNum : parentWidth+(-spaceNum);
+            spaceNum > 0 ? parentWidth - spaceNum : parentWidth + (-spaceNum);
           parentLeft = leftNumber;
-          console.log(parentWidth,'parent width222')
-
-
           break;
         case "top":
           cloumnNum = currentBorderTop;
@@ -258,7 +252,6 @@ export default {
 
           break;
       }
-      console.log(parentWidth,"2.52.5")
 
 
       // 限制宽
@@ -278,13 +271,11 @@ export default {
         console.log("max width is 500px");
         parentHeight = this.maxHeight;
       }
-      console.log(parentWidth,"33333")
 
       const isAllow = this.isAllow();
-      if (isAllow&&this.isChange) {
+      if (isAllow && this.isChange) {
         this.reszieParentElement.style.width = parentWidth + "px";
         this.reszieParentElement.style.height = parentHeight + "px";
-      console.log(parentWidth,"4444")
 
         // this.reszieParentElement.style.left = parentLeft + "px";
         // this.reszieParentElement.style.top = parentTiop + "px";
@@ -294,10 +285,10 @@ export default {
           top: parentTiop,
           width: parentWidth,
           height: parentHeight,
-          direction:this.direction,
+          direction: this.direction,
         })
 
-        this.isChange=false;
+        this.isChange = false;
 
       }
 
