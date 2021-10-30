@@ -125,7 +125,6 @@ export default {
       this.original_mouse_y = e.pageY;
     },
     resizerDown (e, i) {
-      console.log(this.reszieParentElement, this.classId)
       this.currentResieIndex = i;
       this.isChange = false;
       e.preventDefault();
@@ -159,7 +158,6 @@ export default {
       const mouseY = e.pageY;
       let resizeBorderLeft = 0,
         resizeBorderTop = 0;
-      console.log(this.direction);
       switch (this.direction) {
         case "right":
           resizeBorderLeft = mouseX - this.original_x;
@@ -193,7 +191,6 @@ export default {
       const currentBorderLeft = this.currentResizer.offsetLeft;
       const currentBorderTop = this.currentResizer.offsetTop;
       let allow = true;
-      console.log(parentLeft + parentWidth, currentBorderLeft)
       switch (this.direction) {
         case "left":
           allow = currentBorderLeft + parentLeft > parentLeft + parentWidth ? false : true;
@@ -274,8 +271,8 @@ export default {
 
       const isAllow = this.isAllow();
       if (isAllow && this.isChange) {
-        this.reszieParentElement.style.width = parentWidth + "px";
-        this.reszieParentElement.style.height = parentHeight + "px";
+        // this.reszieParentElement.style.width = parentWidth + "px";
+        // this.reszieParentElement.style.height = parentHeight + "px";
 
         // this.reszieParentElement.style.left = parentLeft + "px";
         // this.reszieParentElement.style.top = parentTiop + "px";
