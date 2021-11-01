@@ -1,25 +1,13 @@
 <template>
   <div class="sizeBox" :style="defaultStyle">
-    <resize-div
-      :maxHeight="boxHeight"
-      :gutters="gutters"
-      :width="item.width"
-      :height="item.height"
-      :maxWidth="boxWidth"
-      :classId="item.id"
-      v-for="(item, index) in grids"
-      :key="index"
-      :leftNum="item.left"
-      :topNum="item.top"
-      @change="setResize"
-    />
+    <resize-div :maxHeight="boxHeight" :gutters="gutters" :width="item.width" :height="item.height" :maxWidth="boxWidth" :classId="item.id" v-for="(item, index) in grids" :key="index" :leftNum="item.left" :topNum="item.top" @change="setResize" />
   </div>
 </template>
 
 <script>
 import ResizeDiv from "@/components/resize-div/index.vue";
 export default {
-  data() {
+  data () {
     return {
       boxWidth: 800,
       boxHeight: 800,
@@ -51,7 +39,7 @@ export default {
     };
   },
   computed: {
-    currentMaxWidth() {
+    currentMaxWidth () {
       return (item) => {
         const blocks = this.grids.filter(
           (v) => v.top == item.top && v.id != item.id
@@ -63,7 +51,7 @@ export default {
         return this.boxWidth - width;
       };
     },
-    currentMaxHeight() {
+    currentMaxHeight () {
       return (item) => {
         const blocks = this.grids.filter(
           (v) => v.left == item.left && v.id != item.id
@@ -74,23 +62,23 @@ export default {
         return this.boxHeight - width;
       };
     },
-    randomId() {
+    randomId () {
       return (i) => {
         return Math.floor(Math.random() * 10000000 * (i + 1));
       };
     },
-    defaultStyle() {
+    defaultStyle () {
       return `width:${this.boxWidth};height:${this.boxHeight}`;
     },
   },
   components: {
     ResizeDiv,
   },
-  created() {
+  created () {
     this.initGrids();
   },
   methods: {
-    initGrids() {
+    initGrids () {
       this.grids = this.grids.map((v, index) => {
         return {
           ...v,
@@ -98,7 +86,8 @@ export default {
         };
       });
     },
-    isAdd(left, direction, top, prev) {
+    isAdd (left, direction, top, prev, width, height) {
+      console.log(width, height);
       let prevleft = prev.left;
       let prevTop = prev.top;
       let is = true;
@@ -107,7 +96,7 @@ export default {
       switch (direction) {
         case "left":
           is = left > this.limit;
-          if (prevleft >this.limit) {
+          if (prevleft > this.limit) {
             is = false;
           }
           blanaceWidth = this.grids
@@ -118,7 +107,7 @@ export default {
           break;
         case "right":
           prevleft = prevleft + prev.width;
-          if (prevleft < (this.boxWidth-this.limit)) {
+          if (prevleft < (this.boxWidth - this.limit)) {
             is = false;
           }
           blanaceWidth = this.grids
@@ -148,15 +137,15 @@ export default {
           }
           break;
         case "bottom":
-          prevTop = prevTop + prev.height;
-          if (prevTop < this.boxHeight) {
+          prevTop = top + height;
+          if (prevTop > (this.boxHeight - this.limit)) {
             is = false;
           }
-          blanaceWidth = this.grids
+          blanaceHeight = this.grids
             .filter((v) => v.left == left)
             .reduce((total, cur) => {
               return (total = total - cur.height);
-            }, this.boxWidth);
+            }, this.boxHeight);
           if (blanaceHeight <= 0) {
             is = false;
           }
@@ -166,45 +155,58 @@ export default {
 
       return is;
     },
-    isReduce(left, direction, top,width,prev) {
-      const prevleft = prev.left;
-      console.log(prevleft, "llll");
+    isReduce (left, direction, top, width, height) {
       let is = false;
       switch (direction) {
         case "left":
           is = left < this.limit;
           break;
         case "right":
-          is=left>(this.boxWidth-this.limit-width)
+          is = left > (this.boxWidth - this.limit - width);
+          break;
+        case "top":
+          is = top < this.limit;
+          break;
+        case "bottom":
+          is = top >= (this.boxHeight - this.limit - height);
+          break;
       }
       return is;
     },
-    reduceGrid(direction, id) {
-      console.log("删除 不改变");
+    reduceGrid (direction, id) {
       const currentIndex = this.grids.findIndex((v) => v.id == id);
-      const { top, left } = this.grids[currentIndex];
-
+      const { top, left, height } = this.grids[currentIndex];
       let removeIndex = 0;
-
+      console.log("remove", direction)
       switch (direction) {
         case "left":
           removeIndex = this.grids.findIndex((v) => {
             return v.top == top && v.left < left;
           });
           break;
-          case "right":
+        case "right":
           removeIndex = this.grids.findIndex((v) => {
             return v.top == top && v.left > left;
           });
           break;
+        case "top":
+          removeIndex = this.grids.findIndex((v) => {
+            return v.left == left && v.top < top
+          });
+          break;
+        case "bottom":
+          removeIndex = this.grids.findIndex((v) => {
+            return v.left == left && (v.top + v.height) > (top + height)
+          })
+          break;
       }
 
-      console.log(removeIndex,"remopve",direction)
+      console.log(removeIndex, "remopve", direction)
       if (removeIndex > -1) {
         this.grids.splice(removeIndex, 1);
       }
     },
-    addGrid(direction, id) {
+    addGrid (direction, id) {
       console.log("添加 不改变");
       const currentIndex = this.grids.findIndex((v) => v.id == id);
       const { top, height, width, left } = this.grids[currentIndex];
@@ -251,25 +253,35 @@ export default {
           };
           this.grids.push(gridIttem);
           break;
+        case "bottom":
+          gridIttem = {
+            id: this.randomId(Math.floor(Math.random() * 100000)),
+            left: 0,
+            top: this.boxHeight - gridHeight,
+            width: width,
+            height: gridHeight,
+          };
+          this.grids.push(gridIttem);
+          break;
       }
     },
-    initRowGrid(direction, id) {
+    initRowGrid (direction, id) {
       console.log("改变 不添加");
       const currentIndex = this.grids.findIndex((v) => v.id == id);
-      const { top, left } = this.grids[currentIndex];
+      const { top, left, height } = this.grids[currentIndex];
       let changeGrid = null;
       let changeGridIndex = 0;
       let gridWidth = 0;
       let gridHeight = 0;
-      let prevChild='';
+      let prevChild = '';
 
-      console.log(direction,"change size")
+      console.log(direction, "change size")
 
       switch (direction) {
         case "left":
           changeGridIndex = this.grids.findIndex((v) => v.left < left);
           changeGrid = this.grids[changeGridIndex];
-          gridWidth =changeGrid&& this.grids
+          gridWidth = changeGrid && this.grids
             .filter((v) => v.top == top)
             .reduce((result, cur) => {
               return (result =
@@ -281,10 +293,10 @@ export default {
           });
           break;
         case "right":
-          changeGridIndex = this.grids.findIndex((v) => v.left > left)||0;
+          changeGridIndex = this.grids.findIndex((v) => v.left > left) || 0;
           changeGrid = this.grids[changeGridIndex];
 
-           prevChild=changeGridIndex>0?this.grids[changeGridIndex-1]:this.grids[0];
+          prevChild = changeGridIndex > 0 ? this.grids[changeGridIndex - 1] : this.grids[0];
           gridWidth = this.grids
             .filter((v) => v.top == top)
             .reduce((result, cur) => {
@@ -293,7 +305,7 @@ export default {
             }, this.boxWidth);
           this.$set(this.grids, changeGridIndex, {
             ...this.grids[changeGridIndex],
-            left: changeGridIndex>0? (prevChild.left+prevChild.width) :0,
+            left: changeGridIndex > 0 ? (prevChild.left + prevChild.width) : 0,
             width: gridWidth,
           });
           break;
@@ -311,64 +323,113 @@ export default {
             height: gridHeight,
           });
           break;
+        case "bottom":
+          changeGridIndex = this.grids.findIndex((v) => (v.top + v.height) > (top + height));
+          changeGrid = this.grids[changeGridIndex];
+          prevChild = changeGridIndex > 0 ? this.grids[changeGridIndex - 1] : this.grids[0];
+          gridHeight = this.grids
+            .filter((v) => v.left == left)
+            .reduce((result, cur) => {
+              return (result =
+                result - (cur.id == changeGrid.id ? 0 : cur.height));
+            }, this.boxHeight);
+          this.$set(this.grids, changeGridIndex, {
+            ...this.grids[changeGridIndex],
+            top: changeGridIndex > 0 ? (prevChild.top + prevChild.height) : 0,
+            height: gridHeight,
+          });
+          break;
       }
     },
-    isChange(id, left, direction, top, width,prev) {
+    isChange (id, left, direction, top, width, height, prev) {
       const prevLeft = prev.left;
-      let currentLeft=left;
+      const prevTop = prev.top;
+      let currentLeft = left;
+      let currentTop = top;
       let is = true;
       let childLength = 0;
       let child = null;
-      console.log(direction,"ischange")
       switch (direction) {
         case "left":
-
-          child=this.grids.find(v=>{
+          child = this.grids.find(v => {
             return (
-                v.top == top &&
-                v.left >= left &&
-                v.id != id &&
-                v.left>=this.limit
+              v.top == top &&
+              v.left >= left &&
+              v.id != id &&
+              v.left >= this.limit
             )
           })
-
-          childLength=this.grids.filter(v=>{
+          childLength = this.grids.filter(v => {
             return (
-                v.top == top &&
-                v.left <= prevLeft &&
-                v.id != id 
+              v.top == top &&
+              v.left <= prevLeft &&
+              v.id != id
             )
           }).length;
 
           break;
-           case "right":
-             currentLeft=left+width;
-          child=this.grids.find(v=>{
+        case "right":
+          currentLeft = left + width;
+          child = this.grids.find(v => {
             return (
-                v.top == top &&
-                v.left <= currentLeft &&
-                v.id != id &&
-                (v.left+v.width)>=(this.boxWidth-this.limit)
+              v.top == top &&
+              v.left <= currentLeft &&
+              v.id != id &&
+              (v.left + v.width) >= (this.boxWidth - this.limit)
             )
           })
-
-          console.log(left,this.grids,id)
-
-          childLength=this.grids.filter(v=>{
+          childLength = this.grids.filter(v => {
             return (
-                v.top == top &&
-                v.left > prevLeft &&
-                v.id != id 
+              v.top == top &&
+              v.left > prevLeft &&
+              v.id != id
             )
           }).length;
 
+          break;
+        case "top":
+          child = this.grids.find(v => {
+            return (
+              v.left == left &&
+              v.top >= top &&
+              v.id != id &&
+              v.top >= this.limit
+            )
+          })
+
+          childLength = this.grids.filter(v => {
+            return (
+              v.left == left &&
+              v.top <= prevTop &&
+              v.id != id
+            )
+          }).length;
+          break;
+        case "bottom":
+          currentTop = top + height;
+          console.log(prevTop, "is change bottom")
+          child = this.grids.find(v => {
+            return (
+              v.left == left &&
+              v.top <= currentTop &&
+              v.id != id &&
+              (v.top + v.height) >= (this.boxHeight - this.limit)
+            )
+          })
+          childLength = this.grids.filter(v => {
+            return (
+              v.left == left &&
+              v.top >= prevTop &&
+              v.id != id
+            )
+          }).length;
           break;
       }
-      is = (child&&childLength>=2) ? false : true;
-      console.log(is, "change", child,childLength);
+      is = (child && childLength >= 2) ? false : true;
+      console.log(is, "change", child, childLength);
       return is;
     },
-    setResize({ id, width, height, left, top, direction }) {
+    setResize ({ id, width, height, left, top, direction }) {
       const index = this.grids.findIndex((v) => v.id == id);
       const currentGrid = this.grids[index];
       let currentLeft = left + currentGrid.left;
@@ -388,6 +449,7 @@ export default {
         direction,
         currentTop,
         width,
+        height,
         prev
       );
       if (!isChange) {
@@ -417,6 +479,7 @@ export default {
           direction,
           currentTop,
           width,
+          height,
           prev
         );
         console.log(isAdd, "add");
