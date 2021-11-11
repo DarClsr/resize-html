@@ -51,6 +51,12 @@ export default {
     };
   },
   computed: {
+    isLarge(){
+      return (prev,width)=>{
+        return prev.width>width;
+      }
+
+    },
     currentMaxWidth() {
       return (item) => {
         const blocks = this.grids.filter(
@@ -118,6 +124,7 @@ export default {
           break;
         case "right":
           prevleft = prevleft + prev.width;
+          console.log("right",prevleft)
           if (prevleft < (this.boxWidth-this.limit)) {
             is = false;
           }
@@ -149,17 +156,24 @@ export default {
           break;
         case "bottom":
           prevTop = prevTop + prev.height;
-          if (prevTop < this.boxHeight) {
+          console.log("lllllll","bottom",prevTop)
+
+          if (prevTop < this.boxHeight-this.limit) {
             is = false;
           }
-          blanaceWidth = this.grids
+
+          console.log(is,"bottom1")
+          blanaceHeight = this.grids
             .filter((v) => v.left == left)
             .reduce((total, cur) => {
               return (total = total - cur.height);
-            }, this.boxWidth);
+            }, this.boxHeight);
           if (blanaceHeight <= 0) {
             is = false;
           }
+
+          console.log(is,"bottom2")
+
 
           break;
       }
@@ -251,17 +265,29 @@ export default {
           };
           this.grids.push(gridIttem);
           break;
+           case "bottom":
+          gridIttem = {
+            id: this.randomId(Math.floor(Math.random() * 100000)),
+            left: left,
+            top: this.boxHeight-gridHeight,
+            width,
+            height:gridHeight,
+          };
+          this.grids.push(gridIttem);
+          break;
       }
     },
     initRowGrid(direction, id) {
       console.log("改变 不添加");
       const currentIndex = this.grids.findIndex((v) => v.id == id);
-      const { top, left } = this.grids[currentIndex];
+      const { top, left,width,height } = this.grids[currentIndex];
       let changeGrid = null;
       let changeGridIndex = 0;
       let gridWidth = 0;
       let gridHeight = 0;
       let prevChild='';
+      let changeIndex=0;
+      // let prevLeft=""
 
       console.log(direction,"change size")
 
@@ -281,9 +307,9 @@ export default {
           });
           break;
         case "right":
-          changeGridIndex = this.grids.findIndex((v) => v.left > left)||0;
+           changeIndex = this.grids.findIndex((v) => v.left > (left+width));
+          changeGridIndex=changeIndex>-1?changeIndex:0;
           changeGrid = this.grids[changeGridIndex];
-
            prevChild=changeGridIndex>0?this.grids[changeGridIndex-1]:this.grids[0];
           gridWidth = this.grids
             .filter((v) => v.top == top)
@@ -291,9 +317,10 @@ export default {
               return (result =
                 result - (cur.id == changeGrid.id ? 0 : cur.width));
             }, this.boxWidth);
+          console.log(gridWidth,"llllllllll")
           this.$set(this.grids, changeGridIndex, {
             ...this.grids[changeGridIndex],
-            left: changeGridIndex>0? (prevChild.left+prevChild.width) :0,
+            left: changeGridIndex>0? (prevChild.left+prevChild.width) :width,
             width: gridWidth,
           });
           break;
@@ -309,6 +336,24 @@ export default {
           this.$set(this.grids, changeGridIndex, {
             ...this.grids[changeGridIndex],
             height: gridHeight,
+          });
+          break;
+          case "bottom":
+           changeIndex = this.grids.findIndex((v) => v.top > (top+height));
+          changeGridIndex=changeIndex>-1?changeIndex:0;
+          changeGrid = this.grids[changeGridIndex];
+           prevChild=changeGridIndex>0?this.grids[changeGridIndex-1]:this.grids[0];
+          gridHeight = this.grids
+            .filter((v) => v.left == left)
+            .reduce((result, cur) => {
+              return (result =
+                result - (cur.id == changeGrid.id ? 0 : cur.height));
+            }, this.boxHeight);
+          this.$set(this.grids, changeGridIndex, {
+            ...this.grids[changeGridIndex],
+            top: changeGridIndex>0? (prevChild.top+prevChild.height) :height,
+            height: gridHeight,
+
           });
           break;
       }
@@ -426,7 +471,7 @@ export default {
         } else if (isReduce) {
           this.reduceGrid(direction, id, currentLeft, currentTop);
         } else {
-          this.initRowGrid(direction, id);
+          this.initRowGrid(direction, id,index);
         }
       });
     },
