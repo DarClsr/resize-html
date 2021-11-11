@@ -3,7 +3,9 @@
     <div class="resizable-box" :class="`resize-box-${classId}`" :style="{width:width+'px',height:height+'px'}">
       <div class="resizers">
         {{classId}}
+        {{"index--"+index}}
         {{'width--'+ width}}
+        {{'height--'+ height}}
         <div class="resizer-border" @mousedown="(e) => resizerDown(e, i)" @mouseup="(e) => resizerUp(e, i)" :class="`${border.key}`" v-for="(border, i) in borders" :key="border.key"></div>
       </div>
     </div>
@@ -17,6 +19,9 @@ export default {
     minWidth: {
       type: Number,
       default: 100,
+    },
+    index: {
+      type: Number,
     },
     maxWidth: {
       type: Number,
